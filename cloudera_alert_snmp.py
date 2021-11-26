@@ -12,6 +12,8 @@ from re import match, search
 from pysnmp.hlapi import (sendNotification, SnmpEngine, CommunityData,
 UdpTransportTarget, ContextData, NotificationType, ObjectIdentity)
 from struct import pack
+import sys
+import os
 
 
 def send_trap(alerts, t_conf):
@@ -100,10 +102,10 @@ def iterate_alerts(json, severity):
 
 
 if __name__ == '__main__':
-
+    ini_path = os.path.dirname(__file__) + '/cloudera_alert_snmp.ini'
     t_conf = {}
     config = ConfigParser()
-    config.read('cloudera_alert_snmp.ini')
+    config.read(ini_path)
     t_conf['addr'] = config.get('trap', 'ipaddr')
     t_conf['port'] = config.get('trap', 'port')
     t_conf['community'] = config.get('trap', 'community')
@@ -111,7 +113,16 @@ if __name__ == '__main__':
     t_conf['messages'] = config.get('filters', 'messages_blackist')
     t_conf['severity'] = config.get('filters', 'alert_severity')
 
-    JSON = load(open("test.json"))
+    try:
+        sys.argv[1]
+    except IndexError:
+        print("Useage:", os.path.basename(__file__), "file_to_read_alerts_of.json")
+        exit(1)
+    try:
+        JSON = load(open(sys.argv[1]))
+    except:
+        print("No file found", sys.argv[1])
+        exit(1)
     a = iterate_alerts(JSON, t_conf['severity'])
     send_trap(a, t_conf)
 

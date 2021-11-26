@@ -68,6 +68,7 @@ def iterate_alerts(json, severity):
         # print(attributes['EVENTCODE'])
         # print(attributes['SEVERITY'][0])
         # print(attributes['CATEGORY'][0])
+        # print(attributes['ALERT_SUPPRESSED'][0])
         # print(t_conf['service_bl'])
 
         if (
@@ -75,6 +76,7 @@ def iterate_alerts(json, severity):
             and attributes['SEVERITY'][0] == severity
             and not match(t_conf['service_bl'], attributes['SERVICE_TYPE'][0])
             and not search(t_conf['messages'], attributes['HEALTH_TEST_RESULTS'][0]['content'])
+            and not attributes['ALERT_SUPPRESSED'][0] == "true"
         ):
             ts = isoparse(item['body']['alert']['timestamp']['iso8601'])
             snmp_time = pack('>HBBBBBB', ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second, 0)
@@ -93,11 +95,7 @@ def iterate_alerts(json, severity):
             except KeyError:
                 pass
             filtered.append(dic_res)
-        elif (
-            attributes['PREVIOUS_HEALTH_SUMMARY'] == attributes['CURRENT_HEALTH_SUMMARY'] or
-            attributes['SEVERITY'][0] != severity
-        ):
-            pass
+
     return(filtered)
 
 
@@ -131,7 +129,7 @@ if __name__ == '__main__':
 # DONE CURRENT_HEALTH_SUMMARY should be different from PREVIOUS_HEALTH_SUMMARY
 # DONE Alerts should be filtered by service
 # DONE Alerts should be filtered by keyword in message
-# TODO Suppressed alerts should be filtered out
+# DONE Suppressed alerts should be filtered out
 # TODO (Optional) Alerts should be filtered by CLUSTER
 # TODO (Optional) Add looping over multiple messages if there are present
 # TODO Add tests

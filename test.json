@@ -631,7 +631,7 @@
         "CURRENT_HEALTH_SUMMARY" : [ "RED" ],
         "SERVICE_DISPLAY_NAME" : [ "HDFS" ],
         "PREVIOUS_HEALTH_SUMMARY" : [ "GREEN" ],
-        "ALERT_SUPPRESSED" : [ "false" ],
+        "ALERT_SUPPRESSED" : [ "true" ],
         "GOOD_TEST_RESULTS" : [ "1" ],
         "SERVICE_TYPE" : [ "HDFS" ],
         "SEVERITY" : [ "CRITICAL" ]

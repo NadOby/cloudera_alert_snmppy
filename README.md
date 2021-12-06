@@ -35,4 +35,7 @@ In the pysnmp/smi/rfc1902.py line 306 should like
 ```
 def resolveWithMib(self, mibViewController, ignoreErrors=True):
 ```
-Currently this is solved by manually changing this file in local installation.
+Patch this file using:
+```
+patch /usr/lib/python2.7/site-packages/pysnmp/smi/rfc1902.py rfc1902.patch
+```

@@ -1,4 +1,4 @@
 pysnmp
 python-dateutil
-#python-configprser
-#python-pathlib
+configparser
+pathlib

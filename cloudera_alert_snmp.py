@@ -1,20 +1,22 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Docs about obtaining Cloudera MIB file
 https://docs.cloudera.com/cloudera-manager/7.4.2/monitoring-and-diagnostics/topics/cm-alerts-snmp.html
 """
+
 from json import load
-from configparser import ConfigParser
+try:
+    from configparser import ConfigParser
+except ModuleNotFoundError:
+    from ConfigParser import ConfigParser
 from dateutil.parser import isoparse
-from pathlib import Path
 from re import match, search
 from pysnmp.hlapi import (sendNotification, SnmpEngine, CommunityData,
 UdpTransportTarget, ContextData, NotificationType, ObjectIdentity)
 from struct import pack
 import sys
 import os
-
 
 def send_trap(alerts, t_conf):
     for alert in alerts:
@@ -25,7 +27,7 @@ def send_trap(alerts, t_conf):
             ContextData(),
             'trap',
             NotificationType(
-                ObjectIdentity('CLOUDERA-MANAGER-MIB', 'clouderaManagerAlert').addMibSource(str(Path.home) + '.pysnmp/mibs'),
+                ObjectIdentity('CLOUDERA-MANAGER-MIB', 'clouderaManagerAlert').addMibSource(t_conf['MIB_SOURCE']),
                 objects=alert
             )
         )
@@ -110,6 +112,7 @@ if __name__ == '__main__':
     t_conf['service_bl'] = config.get('filters', 'service_blacklist')
     t_conf['messages'] = config.get('filters', 'messages_blackist')
     t_conf['severity'] = config.get('filters', 'alert_severity')
+    t_conf['MIB_SOURCE'] = config.get('general', 'MIB_SOURCE')
 
     try:
         sys.argv[1]
@@ -124,6 +127,7 @@ if __name__ == '__main__':
     a = iterate_alerts(JSON, t_conf['severity'])
     send_trap(a, t_conf)
 
+# TODO ssplit it up to a small functions
 # DONE Alerts should be enumerated or iterated trough
 # DONE Alerts should be filtered by SEVERITY, Which alerts are pass trough defined by a configuration
 # DONE CURRENT_HEALTH_SUMMARY should be different from PREVIOUS_HEALTH_SUMMARY
@@ -132,5 +136,4 @@ if __name__ == '__main__':
 # DONE Suppressed alerts should be filtered out
 # TODO (Optional) Alerts should be filtered by CLUSTER
 # TODO (Optional) Add looping over multiple messages if there are present
-# TODO Add tests
 # TODO Add logging

@@ -26,7 +26,7 @@ sudo [apt|yum] install snmp-mibs-downloader
 ```
 Convert Cloudera MIB to the form acepted by `pysnmp`
 ```
-mibdump.py --debug borrower --generate-mib-texts --mib-source /usr/share/snmp/mibs --mib-source . cm
+mibdump.py --mib-source /usr/share/snmp/mibs --mib-source . --destination-directory /usr/lib/python2.7/site-packages/pysnmp/smi/mibs/ cm
 ```
 
 # Bugs

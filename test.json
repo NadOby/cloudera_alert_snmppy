@@ -1083,7 +1083,7 @@
         "MONITOR_STARTUP" : [ "false" ],
         "CURRENT_HEALTH_SUMMARY" : [ "RED" ],
         "SERVICE_DISPLAY_NAME" : [ "HDFS" ],
-        "PREVIOUS_HEALTH_SUMMARY" : [ "RED" ],
+        "PREVIOUS_HEALTH_SUMMARY" : [ "GREEN" ],
         "ALERT_SUPPRESSED" : [ "false" ],
         "SERVICE_TYPE" : [ "HDFS" ],
         "SEVERITY" : [ "CRITICAL" ]

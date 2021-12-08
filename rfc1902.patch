@@ -1,0 +1,11 @@
+--- /usr/lib/python2.7/site-packages/pysnmp/smi/rfc1902.py	2021-12-06 17:18:05.443000000 +0100
++++ rfc1902.py	2021-12-06 18:56:39.042000000 +0100
+@@ -303,7 +303,7 @@
+ 
+     # this would eventually be called by an entity which posses a
+     # reference to MibViewController
+-    def resolveWithMib(self, mibViewController):
++    def resolveWithMib(self, mibViewController, ignoreErrors=True):
+         """Perform MIB variable ID conversion.
+ 
+         Parameters

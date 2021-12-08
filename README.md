@@ -6,6 +6,8 @@ Every alert can be filtered by service name or keyword in alert message.
 Currently only blacklisting supported and it is configured in [configuration file](./cloudera_alert_snmp.ini).
 
 # Installation
+Currently done manually, `git clone` the project or unpac downloaded tarball.
+
 Install libraries
 ```
 python -m pip install -r requirements.txt
@@ -20,11 +22,11 @@ wget https://docs.cloudera.com/documentation/other/shared/cm.mib.txt -O cm.mib
 ```
 And place it on the filesystem
 
-Verify that there are generic set of MIBs is present on the system, if not install `snmp-mibs-downloader`
+Verify that there are generic set of MIBs is present on the system, if not install 
 ```
 sudo yum install snmp-net-tools
 ```
-Convert Cloudera MIB to the form acepted by `pysnmp` (specified to work with the python 2.7)
+Convert Cloudera MIB to the form acepted by `pysnmp` this example specified to work with the python 2.7 but the directory might be arbitrary chosen, just add it to the right place of the [configuration file](./cloudera_alert_snmp.ini).
 ```
 mibdump.py --mib-source /usr/share/snmp/mibs --mib-source . --destination-directory /usr/lib/python2.7/site-packages/pysnmp/smi/mibs/ cm
 ```
@@ -41,3 +43,8 @@ patch /usr/lib/python2.7/site-packages/pysnmp/smi/rfc1902.py rfc1902.patch
 ```
 
 # Usage
+Configure in Cloudera under Administration -> Alerts -> Custom Alert Script.
+
+Disable inbuilt SNMP settings if enabled.
+
+Put proper configuration paramenters fo SNMP trap in a [configuration file](./cloudera_alert_snmp.ini).

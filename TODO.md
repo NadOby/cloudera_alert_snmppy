@@ -1,0 +1,18 @@
+TODO
+- [x] Split all the "if" up to a small functions
+- [x] Add logging
+- [x] Alerts should be enumerated or iterated trough
+- [x] Alerts should be filtered by SEVERITY, Which alerts are pass trough defined by a configuration
+- [x] CURRENT_HEALTH_SUMMARY should be different from PREVIOUS_HEALTH_SUMMARY
+- [x] Alerts should be filtered by service
+- [x] Alerts should be filtered by keyword in message
+- [x] Suppressed alerts should be filtered out
+- [ ] Get rid of for loop in "iterate_alerts" (?list comprehension or map|zip) and rename
+- [ ] Get rid of for loop in "send_trap"
+- [ ] Create proper package (?setuptools|wheel)
+- [ ] Move configuration file to one of the standart places (/etc, /usr/local) and use first found (log it in debug mode)
+- [ ] Make Level of debugging configurable
+- [ ] (Optional) Add debugging to file in /var/log/ or customizable 
+- [ ] (Optional) Add proper copying of alerts JSON files for future inspection
+- [ ] (Optional) Alerts should be filtered by CLUSTER
+- [ ] (Optional) Add looping over multiple messages if there are present

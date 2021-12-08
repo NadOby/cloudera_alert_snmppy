@@ -6,7 +6,7 @@ https://docs.cloudera.com/cloudera-manager/7.4.2/monitoring-and-diagnostics/topi
 """
 
 from json import load
-#from shutil import copy2
+# from shutil import copy2
 try:
     from configparser import ConfigParser
 except ModuleNotFoundError:
@@ -39,6 +39,7 @@ MAP_EVENT_SEVERITY = {
     "INFORMATIONAL": 1,
     "IMPORTANT": 2,
     "CRITICAL": 3
+}
 
 
 def match_severity(severity):
@@ -173,14 +174,3 @@ if __name__ == '__main__':
         exit(1)
     a = iterate_alerts(JSON)
     send_trap(a, t_conf)
-
-# DONE ssplit it up to a small functions
-# DONE Add logging
-# DONE Alerts should be enumerated or iterated trough
-# DONE Alerts should be filtered by SEVERITY, Which alerts are pass trough defined by a configuration
-# DONE CURRENT_HEALTH_SUMMARY should be different from PREVIOUS_HEALTH_SUMMARY
-# DONE Alerts should be filtered by service
-# DONE Alerts should be filtered by keyword in message
-# DONE Suppressed alerts should be filtered out
-# TODO (Optional) Alerts should be filtered by CLUSTER
-# TODO (Optional) Add looping over multiple messages if there are present

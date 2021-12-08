@@ -48,3 +48,4 @@ Configure in Cloudera under Administration -> Alerts -> Custom Alert Script.
 Disable inbuilt SNMP settings if enabled.
 
 Put proper configuration paramenters fo SNMP trap in a [configuration file](./cloudera_alert_snmp.ini).
+Add filtering if needed.

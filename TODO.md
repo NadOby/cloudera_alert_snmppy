@@ -8,7 +8,7 @@ TODO
 - [x] Alerts should be filtered by keyword in message
 - [x] Suppressed alerts should be filtered out
 - [x] Get rid of for loop in "iterate_alerts" (?list comprehension or map|zip) and rename
-- [ ] Get rid of for loop in "send_trap"
+- [x] Get rid of for loop in "send_trap"
 - [ ] Create proper package (?setuptools|wheel)
 - [ ] Move configuration file to one of the standart places (/etc, /usr/local) and use first found (log it in debug mode)
 - [ ] Make Level of debugging configurable

@@ -4,13 +4,14 @@
 Docs about obtaining Cloudera MIB file
 https://docs.cloudera.com/cloudera-manager/7.4.2/monitoring-and-diagnostics/topics/cm-alerts-snmp.html
 """
-
-from json import load
 # from shutil import copy2
 try:
+    # Python v3 specific
     from configparser import ConfigParser
 except ImportError:
+    # Python v2 specific
     from ConfigParser import ConfigParser
+from json import load
 from dateutil.parser import isoparse
 from re import findall
 from pysnmp.hlapi import (
@@ -191,9 +192,9 @@ def send_trap(alert):
         ContextData(),
         "trap",
         NotificationType(
-            ObjectIdentity(
-                "CLOUDERA-MANAGER-MIB", "clouderaManagerAlert"
-            ).addMibSource(t_conf["MIB_SOURCE"]),
+            ObjectIdentity("CLOUDERA-MANAGER-MIB", "clouderaManagerAlert").addMibSource(
+                t_conf["MIB_SOURCE"]
+            ),
             objects=alert,
         ),
     )

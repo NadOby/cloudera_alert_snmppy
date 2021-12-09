@@ -1,12 +1,12 @@
 # Cloudera custom alert script
-Used to filter out some Cloudera alerts and forward them to SNMP trap instead using inbuilt SNMP alerting.
+Used to filter out Cloudera alerts and forward them to SNMP trap instead of using inbuilt SNMP alerting.
 Should be used as [custom alert script](https://docs.cloudera.com/cloudera-manager/7.4.2/monitoring-and-diagnostics/topics/cm-alerts-script.html)
 # Configuration
 Every alert can be filtered by service name or keyword in alert message.
 Currently only blacklisting supported and it is configured in [configuration file](./cloudera_alert_snmp.ini).
 
 # Installation
-Currently done manually, `git clone` the project or unpac downloaded tarball.
+Currently done manually, `git clone` the project or unpack downloaded tarball.
 
 Install libraries
 ```
@@ -43,9 +43,10 @@ patch /usr/lib/python2.7/site-packages/pysnmp/smi/rfc1902.py rfc1902.patch
 ```
 
 # Usage
-Configure in Cloudera under Administration -> Alerts -> Custom Alert Script.
+Configure usage of the Custom Alert Script in Cloudera under Administration -> Alerts -> Custom Alert Script.
 
 Disable inbuilt SNMP settings if enabled.
 
-Put proper configuration paramenters fo SNMP trap in a [configuration file](./cloudera_alert_snmp.ini).
+Put proper configuration paramenters for SNMP trap in a [configuration file](./cloudera_alert_snmp.ini).
+
 Add filtering if needed.

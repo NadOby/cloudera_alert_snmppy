@@ -6,11 +6,10 @@ https://docs.cloudera.com/cloudera-manager/7.4.2/monitoring-and-diagnostics/topi
 """
 
 from json import load
-
 # from shutil import copy2
 try:
     from configparser import ConfigParser
-except ModuleNotFoundError:
+except ImportError:
     from ConfigParser import ConfigParser
 from dateutil.parser import isoparse
 from re import findall
@@ -184,33 +183,32 @@ def filter_alert(alert):
         )
 
 
-def send_trap(alerts):
-    for alert in alerts:
-        iterator = sendNotification(
-            SnmpEngine(),
-            CommunityData(t_conf["community"]),
-            UdpTransportTarget((t_conf["addr"], t_conf["port"])),
-            ContextData(),
-            "trap",
-            NotificationType(
-                ObjectIdentity(
-                    "CLOUDERA-MANAGER-MIB", "clouderaManagerAlert"
-                ).addMibSource(t_conf["MIB_SOURCE"]),
-                objects=alert,
-            ),
-        )
+def send_trap(alert):
+    iterator = sendNotification(
+        SnmpEngine(),
+        CommunityData(t_conf["community"]),
+        UdpTransportTarget((t_conf["addr"], t_conf["port"])),
+        ContextData(),
+        "trap",
+        NotificationType(
+            ObjectIdentity(
+                "CLOUDERA-MANAGER-MIB", "clouderaManagerAlert"
+            ).addMibSource(t_conf["MIB_SOURCE"]),
+            objects=alert,
+        ),
+    )
 
-        logger.info(
-            'Sending SNMP alert for service "%s" with UUID "%s" to trap %s:%s',
-            alert[("CLOUDERA-MANAGER-MIB", "notifEventService")],
-            alert[("CLOUDERA-MANAGER-MIB", "notifEventId")],
-            t_conf["addr"],
-            t_conf["port"],
-        )
+    logger.info(
+        'Sending SNMP alert for service "%s" with UUID "%s" to trap %s:%s',
+        alert[("CLOUDERA-MANAGER-MIB", "notifEventService")],
+        alert[("CLOUDERA-MANAGER-MIB", "notifEventId")],
+        t_conf["addr"],
+        t_conf["port"],
+    )
 
-        errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
-        if errorIndication:
-            print(errorIndication)
+    errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
+    if errorIndication:
+        logger.info(errorIndication)
 
 
 if __name__ == "__main__":
@@ -237,5 +235,5 @@ if __name__ == "__main__":
     except:
         print("No file found", sys.argv[1])
         exit(1)
-    a = [y for y in (filter_alert(x) for x in JSON) if y is not None]
-    send_trap(a)
+    filtered = [y for y in (filter_alert(x) for x in JSON) if y is not None]
+    list(map(send_trap, filtered))

@@ -118,78 +118,73 @@ def match_message(message):
     return True
 
 
-def iterate_alerts(json):
-    filtered = []
-    for item in json:
-        attributes = item["body"]["alert"]["attributes"]
+def filter_alert(alert):
+    attributes = alert["body"]["alert"]["attributes"]
+    logger.info(
+        'Received %s alert for service "%s" with UUID "%s"',
+        attributes["SEVERITY"][0],
+        attributes["SERVICE_TYPE"][0],
+        attributes["__uuid"][0],
+    )
+    if (
+        match_severity(attributes["SEVERITY"][0])
+        and match_health(
+            attributes["PREVIOUS_HEALTH_SUMMARY"][0],
+            attributes["CURRENT_HEALTH_SUMMARY"][0],
+        )
+        and match_suppress(attributes["ALERT_SUPPRESSED"][0])
+        and match_service(attributes["SERVICE_TYPE"][0])
+        and match_message(attributes["HEALTH_TEST_RESULTS"][0]["content"])
+    ):
+        ts = isoparse(alert["body"]["alert"]["timestamp"]["iso8601"])
+        snmp_time = pack(
+            ">HBBBBBB", ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second, 0
+        )
+        dic_res = {
+            ("CLOUDERA-MANAGER-MIB", "notifEventId"): attributes["__uuid"][0],
+            ("CLOUDERA-MANAGER-MIB", "notifEventOccurredTime"): snmp_time,
+            ("CLOUDERA-MANAGER-MIB", "notifEventContent"): attributes[
+                "HEALTH_TEST_RESULTS"
+            ][0]["content"],
+            (
+                "CLOUDERA-MANAGER-MIB",
+                "notifEventCategory",
+            ): MAP_NOTIFICATION_CATEGORY[attributes["CATEGORY"][0]],
+            ("CLOUDERA-MANAGER-MIB", "notifEventSeverity"): MAP_EVENT_SEVERITY[
+                attributes["SEVERITY"][0]
+            ],
+            ("CLOUDERA-MANAGER-MIB", "notifEventUrl"): alert["body"]["alert"]["source"],
+            ("CLOUDERA-MANAGER-MIB", "notifEventService"): attributes["SERVICE_TYPE"][
+                0
+            ],
+            ("CLOUDERA-MANAGER-MIB", "notifEventCode"): attributes["EVENTCODE"][0],
+        }
+        try:
+            dic_res[("CLOUDERA-MANAGER-MIB", "notifEventHost")] = ";".join(
+                attributes["HOSTS"]
+            )
+            logger.debug(
+                'Host(s) "%s" mentioned in alert', ";".join(attributes["HOSTS"])
+            )
+        except KeyError:
+            logger.debug("No hosts mentioned in alert")
         logger.info(
-            'Received %s alert for service "%s" with UUID "%s"',
+            'Passed trough %s alert for service "%s" with UUID "%s"\n',
             attributes["SEVERITY"][0],
             attributes["SERVICE_TYPE"][0],
             attributes["__uuid"][0],
         )
-        if (
-            match_severity(attributes["SEVERITY"][0])
-            and match_health(
-                attributes["PREVIOUS_HEALTH_SUMMARY"][0],
-                attributes["CURRENT_HEALTH_SUMMARY"][0],
-            )
-            and match_suppress(attributes["ALERT_SUPPRESSED"][0])
-            and match_service(attributes["SERVICE_TYPE"][0])
-            and match_message(attributes["HEALTH_TEST_RESULTS"][0]["content"])
-        ):
-            ts = isoparse(item["body"]["alert"]["timestamp"]["iso8601"])
-            snmp_time = pack(
-                ">HBBBBBB", ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second, 0
-            )
-            dic_res = {
-                ("CLOUDERA-MANAGER-MIB", "notifEventId"): attributes["__uuid"][0],
-                ("CLOUDERA-MANAGER-MIB", "notifEventOccurredTime"): snmp_time,
-                ("CLOUDERA-MANAGER-MIB", "notifEventContent"): attributes[
-                    "HEALTH_TEST_RESULTS"
-                ][0]["content"],
-                (
-                    "CLOUDERA-MANAGER-MIB",
-                    "notifEventCategory",
-                ): MAP_NOTIFICATION_CATEGORY[attributes["CATEGORY"][0]],
-                ("CLOUDERA-MANAGER-MIB", "notifEventSeverity"): MAP_EVENT_SEVERITY[
-                    attributes["SEVERITY"][0]
-                ],
-                ("CLOUDERA-MANAGER-MIB", "notifEventUrl"): item["body"]["alert"][
-                    "source"
-                ],
-                ("CLOUDERA-MANAGER-MIB", "notifEventService"): attributes[
-                    "SERVICE_TYPE"
-                ][0],
-                ("CLOUDERA-MANAGER-MIB", "notifEventCode"): attributes["EVENTCODE"][0],
-            }
-            try:
-                dic_res[("CLOUDERA-MANAGER-MIB", "notifEventHost")] = ";".join(
-                    attributes["HOSTS"]
-                )
-                logger.debug(
-                    'Host(s) "%s" mentioned in alert', ";".join(attributes["HOSTS"])
-                )
-            except KeyError:
-                logger.debug("No hosts mentioned in alert")
-            logger.info(
-                'Passed trough %s alert for service "%s" with UUID "%s"\n',
-                attributes["SEVERITY"][0],
-                attributes["SERVICE_TYPE"][0],
-                attributes["__uuid"][0],
-            )
-            filtered.append(dic_res)
-        else:
-            logger.info(
-                'Blacklisted %s alert for service "%s" with UUID "%s"\n',
-                attributes["SEVERITY"][0],
-                attributes["SERVICE_TYPE"][0],
-                attributes["__uuid"][0],
-            )
-    return filtered
+        return dic_res
+    else:
+        logger.info(
+            'Blacklisted %s alert for service "%s" with UUID "%s"\n',
+            attributes["SEVERITY"][0],
+            attributes["SERVICE_TYPE"][0],
+            attributes["__uuid"][0],
+        )
 
 
-def send_trap(alerts, t_conf):
+def send_trap(alerts):
     for alert in alerts:
         iterator = sendNotification(
             SnmpEngine(),
@@ -242,5 +237,5 @@ if __name__ == "__main__":
     except:
         print("No file found", sys.argv[1])
         exit(1)
-    a = iterate_alerts(JSON)
-    send_trap(a, t_conf)
+    a = [y for y in (filter_alert(x) for x in JSON) if y is not None]
+    send_trap(a)
